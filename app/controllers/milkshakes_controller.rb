@@ -11,7 +11,27 @@ class MilkshakesController < ApplicationController
     end
 
     def show
-
+        session = Stripe:Checkout::Session.create(
+            payment_method_type: ["card"],
+            customer_email: current_user.email,
+            line_items: [
+                {
+                    name: @milkshake.name,
+                    description: @milkshake.description,
+                    amount: @milkshake.price,
+                    currency: "aud",
+                    quantity: 1
+                }
+            ],
+            payment_intent_data: {
+                metadata: {
+                    user_id: current_user.id,
+                    milkshake_id: @milkshake.id
+                }
+            },
+            success_url: "#{root_url}payment/success?userID=#{current_user.id}&milkshakeID=#{@milkshake.id}",
+            cancel_url: "#{root_url}milkshakes/#{@milkshake.id}"
+        )
     end
 
     def new
